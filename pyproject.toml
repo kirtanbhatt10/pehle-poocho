@@ -7,7 +7,7 @@ name = "pehle-poocho"
 version = "0.1.0"
 description = "Audit what a website sends to trackers before the visitor consents: Aadhaar, PAN, UPI, phone and hashed-email leaks from a HAR file, with DPDP Act guidance."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Kirtan Bhatt" }]
 keywords = ["dpdp", "privacy", "consent", "har", "pii", "aadhaar", "trackers", "sarif"]
