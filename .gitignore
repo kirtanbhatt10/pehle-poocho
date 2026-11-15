@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+
+# Reports
+*.sarif
+pehle-poocho.json
+pehle-poocho.md
+
+# Real recordings carry session cookies and tokens: keep them out of git.
+*.har
+!examples/*.har
