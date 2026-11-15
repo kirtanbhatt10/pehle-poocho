@@ -2,6 +2,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -131,6 +132,14 @@ class SampleRecording(unittest.TestCase):
             self.assertIn(result["ruleId"], rule_ids)
             self.assertIn(result["level"], ("error", "warning", "note"))
             self.assertTrue(result["partialFingerprints"]["pehlePoocho/v1"])
+
+    def test_markdown_keeps_masked_values_in_code_spans(self):
+        text = render_markdown(self.report, "both")
+        outside = re.sub(r"`[^`]*`", "", text).replace("**", "")
+        self.assertNotIn("@", outside)
+        self.assertNotIn("*", outside)
+        self.assertIn("`p***@oksbi`", text)
+        self.assertIn("`***P*****K`", text)
 
     def test_hindi(self):
         self.assertIn("निजी जानकारी", render_text(self.report, "hi"))
