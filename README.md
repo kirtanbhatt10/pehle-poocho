@@ -3,7 +3,7 @@
 **पहले पूछो — "ask first."** See what your website sends to trackers before the visitor says yes.
 
 [![CI](https://github.com/kirtanbhatt10/pehle-poocho/actions/workflows/ci.yml/badge.svg)](https://github.com/kirtanbhatt10/pehle-poocho/actions/workflows/ci.yml)
-![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
@@ -157,7 +157,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # ... run your e2e tests that write recordings/home.har ...
       - id: consent
         uses: kirtanbhatt10/pehle-poocho@v0.1.0
@@ -167,7 +167,7 @@ jobs:
           consent-after: /api/consent
           seeds: ${{ secrets.TEST_USER_EMAIL }}
           lang: both
-      - uses: github/codeql-action/upload-sarif@v3
+      - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: pehle-poocho.sarif
