@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pehle-poocho"
+version = "0.1.0"
+description = "Audit what a website sends to trackers before the visitor consents: Aadhaar, PAN, UPI, phone and hashed-email leaks from a HAR file, with DPDP Act guidance."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Kirtan Bhatt" }]
+keywords = ["dpdp", "privacy", "consent", "har", "pii", "aadhaar", "trackers", "sarif"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/kirtanbhatt10/pehle-poocho"
+Issues = "https://github.com/kirtanbhatt10/pehle-poocho/issues"
+
+[project.scripts]
+pehle-poocho = "pehle_poocho.cli:main"
+
+[tool.setuptools]
+packages = ["pehle_poocho"]
