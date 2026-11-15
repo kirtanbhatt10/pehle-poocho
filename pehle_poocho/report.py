@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import textwrap
 
 from . import __version__
@@ -108,6 +109,11 @@ def _cell(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ")
 
 
+def _code_masked(text: str) -> str:
+    """Put masked values in code spans so Markdown neither bolds the asterisks nor turns @handle into a mention."""
+    return re.sub(r"[^\s()'|]*[*@][^\s()'|]*", lambda m: f"`{m.group(0)}`", text)
+
+
 def render_markdown(report: Report, lang: str = "en") -> str:
     en, hi = lang in ("en", "both"), lang in ("hi", "both")
     out = [f"## pehle-poocho: grade {report.grade} ({report.score}/100)", ""]
@@ -132,9 +138,9 @@ def render_markdown(report: Report, lang: str = "en") -> str:
         rule = RULES[f.rule]
         parts = []
         if en:
-            parts.append(f"**{rule['title']}**: {f.summary}")
+            parts.append(f"**{rule['title']}**: {_code_masked(f.summary)}")
         if hi:
-            parts.append(f"**{rule['title_hi']}**: {f.summary_hi}")
+            parts.append(f"**{rule['title_hi']}**: {_code_masked(f.summary_hi)}")
         times = f" (x{f.count})" if f.count > 1 else ""
         out.append(f"| {f.severity} | {f.rule} | {_cell('<br>'.join(parts))}{times} | `{_cell(f.url)}` |")
     out += ["", "### How to fix", ""]
