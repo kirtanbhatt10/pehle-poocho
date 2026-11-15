@@ -1,0 +1,80 @@
+name: pehle-poocho
+description: Audit a HAR recording for trackers and personal data a site sends before consent (DPDP Act)
+author: Kirtan Bhatt
+branding:
+  icon: shield
+  color: orange
+
+inputs:
+  har:
+    description: Path to the HAR file to audit
+    required: true
+  min-grade:
+    description: Fail the step if the grade is worse than this (A+, A, B, C, D, F). Empty to never fail.
+    required: false
+    default: ""
+  first-party:
+    description: Space-separated domains that belong to the site. Default is the recorded page's domain.
+    required: false
+    default: ""
+  consent-after:
+    description: Requests from the first URL containing this text onward count as after consent
+    required: false
+    default: ""
+  seeds:
+    description: Newline-separated test values typed into the site (pass them from secrets)
+    required: false
+    default: ""
+  lang:
+    description: Language of the job summary (en, hi or both)
+    required: false
+    default: en
+  sarif:
+    description: Where to write the SARIF report
+    required: false
+    default: pehle-poocho.sarif
+
+outputs:
+  grade:
+    description: Grade from A+ to F
+    value: ${{ steps.scan.outputs.grade }}
+  score:
+    description: Score out of 100
+    value: ${{ steps.scan.outputs.score }}
+  sarif:
+    description: Path of the SARIF report
+    value: ${{ inputs.sarif }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - id: scan
+      shell: bash
+      env:
+        PP_HAR: ${{ inputs.har }}
+        PP_MIN_GRADE: ${{ inputs.min-grade }}
+        PP_FIRST_PARTY: ${{ inputs.first-party }}
+        PP_CONSENT_AFTER: ${{ inputs.consent-after }}
+        PP_SEEDS: ${{ inputs.seeds }}
+        PP_LANG: ${{ inputs.lang }}
+        PP_SARIF: ${{ inputs.sarif }}
+      run: |
+        set -euo pipefail
+        export PYTHONPATH="$GITHUB_ACTION_PATH${PYTHONPATH:+:$PYTHONPATH}"
+        args=("$PP_HAR")
+        for domain in $PP_FIRST_PARTY; do args+=(--first-party "$domain"); done
+        if [ -n "$PP_CONSENT_AFTER" ]; then args+=(--consent-after "$PP_CONSENT_AFTER"); fi
+        while IFS= read -r seed; do
+          if [ -n "$seed" ]; then args+=(--seed "$seed"); fi
+        done <<< "$PP_SEEDS"
+        python -m pehle_poocho "${args[@]}" --format sarif --output "$PP_SARIF"
+        python -m pehle_poocho "${args[@]}" --format markdown --lang "$PP_LANG" >> "$GITHUB_STEP_SUMMARY"
+        report="$RUNNER_TEMP/pehle-poocho.json"
+        python -m pehle_poocho "${args[@]}" --format json --output "$report"
+        python -c 'import json, sys; d = json.load(open(sys.argv[1], encoding="utf-8")); print("grade=" + d["grade"]); print("score=" + str(d["score"]))' "$report" >> "$GITHUB_OUTPUT"
+        if [ -n "$PP_MIN_GRADE" ]; then
+          python -m pehle_poocho "${args[@]}" --min-grade "$PP_MIN_GRADE"
+        fi
